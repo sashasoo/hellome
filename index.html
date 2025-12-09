@@ -1,0 +1,1085 @@
+<!DOCTYPE html>
+<html lang="hr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>SecureChat - Moderalna Aplikacija za Dopisivanje</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        :root {
+            --primary: #00d9ff;
+            --secondary: #0a0e27;
+            --accent: #ff006e;
+            --success: #00ff88;
+            --warning: #ffaa00;
+            --dark: #0a0e27;
+            --darker: #050812;
+            --light: #f0f4ff;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #0a0e27 0%, #1a1f3a 100%);
+            color: #fff;
+            overflow: hidden;
+            height: 100vh;
+        }
+
+        .app-container {
+            display: flex;
+            height: 100vh;
+            background: #050812;
+        }
+
+        /* SIDEBAR */
+        .sidebar {
+            width: 320px;
+            background: linear-gradient(180deg, #0a0e27 0%, #1a1f3a 100%);
+            border-right: 1px solid rgba(0, 217, 255, 0.2);
+            display: flex;
+            flex-direction: column;
+            padding: 20px;
+            overflow-y: auto;
+            box-shadow: -5px 0 20px rgba(0, 0, 0, 0.5);
+        }
+
+        .sidebar-header {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            margin-bottom: 30px;
+            padding-bottom: 20px;
+            border-bottom: 1px solid rgba(0, 217, 255, 0.2);
+        }
+
+        .logo {
+            font-size: 28px;
+            font-weight: bold;
+            background: linear-gradient(45deg, #00d9ff, #ff006e);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+
+        .status-badge {
+            width: 12px;
+            height: 12px;
+            background: #00ff88;
+            border-radius: 50%;
+            animation: pulse 2s infinite;
+            box-shadow: 0 0 10px #00ff88;
+        }
+
+        @keyframes pulse {
+            0%, 100% { opacity: 1; }
+            50% { opacity: 0.5; }
+        }
+
+        .user-section {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+            margin-bottom: 30px;
+            padding: 15px;
+            background: rgba(0, 217, 255, 0.1);
+            border-radius: 10px;
+            border: 1px solid rgba(0, 217, 255, 0.2);
+        }
+
+        .user-avatar {
+            width: 45px;
+            height: 45px;
+            border-radius: 50%;
+            background: linear-gradient(135deg, #00d9ff, #ff006e);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: bold;
+            font-size: 18px;
+        }
+
+        .user-info h3 {
+            font-size: 14px;
+            font-weight: 600;
+            margin-bottom: 3px;
+        }
+
+        .user-info p {
+            font-size: 12px;
+            color: #00d9ff;
+        }
+
+        .contacts-label {
+            font-size: 12px;
+            font-weight: 700;
+            color: #00d9ff;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            margin-bottom: 15px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .add-btn {
+            width: 25px;
+            height: 25px;
+            background: rgba(0, 217, 255, 0.2);
+            border: 1px solid #00d9ff;
+            border-radius: 50%;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: all 0.3s;
+            font-weight: bold;
+            color: #00d9ff;
+        }
+
+        .add-btn:hover {
+            background: #00d9ff;
+            color: #050812;
+            transform: scale(1.1);
+        }
+
+        .contact-item {
+            padding: 12px;
+            margin-bottom: 10px;
+            background: rgba(255, 255, 255, 0.05);
+            border: 1px solid rgba(0, 217, 255, 0.1);
+            border-radius: 8px;
+            cursor: pointer;
+            transition: all 0.3s;
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            position: relative;
+        }
+
+        .contact-item:hover {
+            background: rgba(0, 217, 255, 0.15);
+            border-color: rgba(0, 217, 255, 0.5);
+            transform: translateX(5px);
+        }
+
+        .contact-item.active {
+            background: rgba(0, 217, 255, 0.25);
+            border-color: #00d9ff;
+            box-shadow: 0 0 15px rgba(0, 217, 255, 0.3);
+        }
+
+        .contact-avatar {
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            background: linear-gradient(135deg, #ff006e, #00d9ff);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 16px;
+            font-weight: bold;
+            flex-shrink: 0;
+        }
+
+        .contact-info {
+            flex: 1;
+        }
+
+        .contact-name {
+            font-size: 13px;
+            font-weight: 600;
+            margin-bottom: 3px;
+        }
+
+        .contact-status {
+            font-size: 11px;
+            color: #00d9ff;
+        }
+
+        .request-badge {
+            width: 20px;
+            height: 20px;
+            background: #ff006e;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 12px;
+            font-weight: bold;
+        }
+
+        /* MAIN CHAT AREA */
+        .chat-area {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            background: #050812;
+        }
+
+        .chat-header {
+            padding: 20px;
+            border-bottom: 1px solid rgba(0, 217, 255, 0.2);
+            background: linear-gradient(90deg, rgba(10, 14, 39, 0.8), rgba(26, 31, 58, 0.8));
+            backdrop-filter: blur(10px);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .chat-header-info {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+        }
+
+        .chat-header-avatar {
+            width: 45px;
+            height: 45px;
+            border-radius: 50%;
+            background: linear-gradient(135deg, #00d9ff, #ff006e);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: bold;
+        }
+
+        .chat-header-text h2 {
+            font-size: 16px;
+            margin-bottom: 5px;
+        }
+
+        .chat-header-text p {
+            font-size: 12px;
+            color: #00d9ff;
+        }
+
+        .chat-header-actions {
+            display: flex;
+            gap: 10px;
+        }
+
+        .header-btn {
+            width: 40px;
+            height: 40px;
+            background: rgba(0, 217, 255, 0.1);
+            border: 1px solid rgba(0, 217, 255, 0.3);
+            border-radius: 8px;
+            color: #00d9ff;
+            cursor: pointer;
+            font-size: 18px;
+            transition: all 0.3s;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .header-btn:hover {
+            background: rgba(0, 217, 255, 0.25);
+            border-color: #00d9ff;
+        }
+
+        /* MESSAGES */
+        .messages-container {
+            flex: 1;
+            padding: 20px;
+            overflow-y: auto;
+            display: flex;
+            flex-direction: column;
+            gap: 15px;
+        }
+
+        .messages-container::-webkit-scrollbar {
+            width: 8px;
+        }
+
+        .messages-container::-webkit-scrollbar-track {
+            background: rgba(0, 217, 255, 0.1);
+        }
+
+        .messages-container::-webkit-scrollbar-thumb {
+            background: rgba(0, 217, 255, 0.3);
+            border-radius: 10px;
+        }
+
+        .message {
+            display: flex;
+            gap: 10px;
+            animation: slideIn 0.3s ease;
+        }
+
+        @keyframes slideIn {
+            from {
+                opacity: 0;
+                transform: translateY(10px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .message.own {
+            justify-content: flex-end;
+        }
+
+        .message-avatar {
+            width: 35px;
+            height: 35px;
+            border-radius: 50%;
+            background: linear-gradient(135deg, #ff006e, #00d9ff);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 14px;
+            font-weight: bold;
+            flex-shrink: 0;
+        }
+
+        .message.own .message-avatar {
+            order: 2;
+        }
+
+        .message-content {
+            max-width: 50%;
+            display: flex;
+            flex-direction: column;
+            gap: 5px;
+        }
+
+        .message-text {
+            padding: 12px 16px;
+            border-radius: 12px;
+            word-wrap: break-word;
+            font-size: 14px;
+            line-height: 1.4;
+        }
+
+        .message.other .message-text {
+            background: rgba(0, 217, 255, 0.15);
+            border: 1px solid rgba(0, 217, 255, 0.3);
+            color: #fff;
+        }
+
+        .message.own .message-text {
+            background: linear-gradient(135deg, #00d9ff, #0088ff);
+            color: #000;
+            font-weight: 500;
+        }
+
+        .message-time {
+            font-size: 11px;
+            color: #888;
+            padding: 0 16px;
+        }
+
+        .message.own .message-time {
+            text-align: right;
+        }
+
+        /* INPUT AREA */
+        .input-area {
+            padding: 20px;
+            border-top: 1px solid rgba(0, 217, 255, 0.2);
+            background: rgba(10, 14, 39, 0.5);
+            backdrop-filter: blur(10px);
+        }
+
+        .input-wrapper {
+            display: flex;
+            gap: 10px;
+            align-items: flex-end;
+        }
+
+        .message-input {
+            flex: 1;
+            background: rgba(0, 217, 255, 0.05);
+            border: 1px solid rgba(0, 217, 255, 0.3);
+            border-radius: 8px;
+            padding: 12px 15px;
+            color: #fff;
+            font-size: 14px;
+            resize: none;
+            max-height: 100px;
+            min-height: 45px;
+            font-family: inherit;
+            transition: all 0.3s;
+        }
+
+        .message-input:focus {
+            outline: none;
+            border-color: #00d9ff;
+            background: rgba(0, 217, 255, 0.1);
+            box-shadow: 0 0 15px rgba(0, 217, 255, 0.2);
+        }
+
+        .message-input::placeholder {
+            color: rgba(0, 217, 255, 0.5);
+        }
+
+        .send-btn {
+            width: 45px;
+            height: 45px;
+            background: linear-gradient(135deg, #00d9ff, #0088ff);
+            border: none;
+            border-radius: 8px;
+            color: #000;
+            font-size: 20px;
+            cursor: pointer;
+            transition: all 0.3s;
+            font-weight: bold;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            flex-shrink: 0;
+        }
+
+        .send-btn:hover {
+            transform: scale(1.05);
+            box-shadow: 0 0 20px rgba(0, 217, 255, 0.5);
+        }
+
+        .send-btn:active {
+            transform: scale(0.95);
+        }
+
+        /* MODAL - ZAHTJEV ZA DOPISIVANJE */
+        .modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.7);
+            backdrop-filter: blur(5px);
+            align-items: center;
+            justify-content: center;
+            z-index: 1000;
+        }
+
+        .modal.active {
+            display: flex;
+        }
+
+        .modal-content {
+            background: linear-gradient(135deg, #0a0e27, #1a1f3a);
+            border: 1px solid rgba(0, 217, 255, 0.3);
+            border-radius: 15px;
+            padding: 30px;
+            max-width: 400px;
+            width: 90%;
+            text-align: center;
+            box-shadow: 0 0 40px rgba(0, 217, 255, 0.3);
+            animation: popIn 0.3s ease;
+        }
+
+        @keyframes popIn {
+            0% {
+                transform: scale(0.8);
+                opacity: 0;
+            }
+            100% {
+                transform: scale(1);
+                opacity: 1;
+            }
+        }
+
+        .modal-title {
+            font-size: 24px;
+            font-weight: 700;
+            margin-bottom: 10px;
+            background: linear-gradient(45deg, #00d9ff, #ff006e);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+
+        .modal-subtitle {
+            font-size: 14px;
+            color: #00d9ff;
+            margin-bottom: 20px;
+        }
+
+        .modal-user {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+            margin-bottom: 25px;
+            padding: 15px;
+            background: rgba(0, 217, 255, 0.1);
+            border-radius: 10px;
+            border: 1px solid rgba(0, 217, 255, 0.2);
+        }
+
+        .modal-avatar {
+            width: 50px;
+            height: 50px;
+            border-radius: 50%;
+            background: linear-gradient(135deg, #ff006e, #00d9ff);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 20px;
+            font-weight: bold;
+        }
+
+        .modal-user-info {
+            text-align: left;
+        }
+
+        .modal-user-name {
+            font-size: 16px;
+            font-weight: 600;
+            margin-bottom: 3px;
+        }
+
+        .modal-user-email {
+            font-size: 12px;
+            color: #00d9ff;
+        }
+
+        .modal-buttons {
+            display: flex;
+            gap: 12px;
+            margin-top: 25px;
+        }
+
+        .modal-btn {
+            flex: 1;
+            padding: 12px;
+            border: none;
+            border-radius: 8px;
+            font-size: 14px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        .modal-btn-accept {
+            background: linear-gradient(135deg, #00ff88, #00d9ff);
+            color: #000;
+        }
+
+        .modal-btn-accept:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 20px rgba(0, 255, 136, 0.4);
+        }
+
+        .modal-btn-reject {
+            background: rgba(255, 0, 110, 0.2);
+            border: 1px solid #ff006e;
+            color: #ff006e;
+        }
+
+        .modal-btn-reject:hover {
+            background: rgba(255, 0, 110, 0.3);
+        }
+
+        /* EMPTY STATE */
+        .empty-state {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            height: 100%;
+            flex-direction: column;
+            gap: 20px;
+            color: rgba(0, 217, 255, 0.5);
+        }
+
+        .empty-state-icon {
+            font-size: 80px;
+            opacity: 0.3;
+        }
+
+        .empty-state-text {
+            font-size: 18px;
+            text-align: center;
+        }
+
+        /* NOTIFICATION */
+        .notification {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            background: linear-gradient(135deg, #00ff88, #00d9ff);
+            color: #000;
+            padding: 15px 20px;
+            border-radius: 8px;
+            font-weight: 600;
+            z-index: 2000;
+            animation: slideInRight 0.5s ease;
+        }
+
+        @keyframes slideInRight {
+            from {
+                transform: translateX(400px);
+                opacity: 0;
+            }
+            to {
+                transform: translateX(0);
+                opacity: 1;
+            }
+        }
+
+        .notification.show {
+            display: block;
+        }
+
+        @media (max-width: 768px) {
+            .sidebar {
+                width: 250px;
+            }
+
+            .message-content {
+                max-width: 70%;
+            }
+        }
+
+        @media (max-width: 600px) {
+            .app-container {
+                flex-direction: column;
+            }
+
+            .sidebar {
+                width: 100%;
+                height: auto;
+                border-right: none;
+                border-bottom: 1px solid rgba(0, 217, 255, 0.2);
+                max-height: 200px;
+                overflow-x: auto;
+            }
+
+            .chat-area {
+                height: calc(100vh - 200px);
+            }
+
+            .message-content {
+                max-width: 85%;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="app-container">
+        <!-- SIDEBAR -->
+        <div class="sidebar">
+            <div class="sidebar-header">
+                <div class="logo">⚡ SecureChat</div>
+                <div class="status-badge"></div>
+            </div>
+
+            <div class="user-section">
+                <div class="user-avatar" id="userAvatar">M</div>
+                <div class="user-info">
+                    <h3>Moj profil</h3>
+                    <p id="userName">Korisnik</p>
+                </div>
+            </div>
+
+            <div class="contacts-label">
+                Kontakti
+                <button class="add-btn" onclick="showAddContact()">+</button>
+            </div>
+
+            <div id="contactsList"></div>
+
+            <div style="margin-top: 20px; padding-top: 20px; border-top: 1px solid rgba(0, 217, 255, 0.2); font-size: 12px; color: #888;">
+                <p>📨 Zahtjevi za dopisivanje:</p>
+                <div id="requestsCount" style="color: #ff006e; font-weight: bold; margin-top: 5px;">0</div>
+            </div>
+        </div>
+
+        <!-- CHAT AREA -->
+        <div class="chat-area" id="chatArea">
+            <div class="empty-state">
+                <div class="empty-state-icon">💬</div>
+                <div class="empty-state-text">Odaberite kontakt ili dodajte novog kontakta</div>
+            </div>
+        </div>
+    </div>
+
+    <!-- MODAL ZA ZAHTJEV DOPISIVANJA -->
+    <div class="modal" id="requestModal">
+        <div class="modal-content">
+            <div class="modal-title">📨 Zahtjev za dopisivanje</div>
+            <div class="modal-subtitle">Osoba želi započeti razgovor s vama</div>
+            
+            <div class="modal-user">
+                <div class="modal-avatar" id="modalAvatar">👤</div>
+                <div class="modal-user-info">
+                    <div class="modal-user-name" id="modalUserName">Nepoznato</div>
+                    <div class="modal-user-email" id="modalUserEmail">user@example.com</div>
+                </div>
+            </div>
+
+            <div class="modal-buttons">
+                <button class="modal-btn modal-btn-accept" onclick="acceptRequest()">✓ Prihvati</button>
+                <button class="modal-btn modal-btn-reject" onclick="rejectRequest()">✕ Odbij</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- NOTIFICATION -->
+    <div class="notification" id="notification"></div>
+
+    <script>
+        // APLIKACIJSKA LOGIKA
+        class SecureChat {
+            constructor() {
+                this.currentUser = { id: 'user1', name: 'Vi', email: 'user@example.com', avatar: 'M' };
+                this.contacts = [];
+                this.currentContact = null;
+                this.messages = {};
+                this.requests = [];
+                this.init();
+            }
+
+            init() {
+                this.loadDemo();
+                this.updateUI();
+                this.setupEventListeners();
+            }
+
+            loadDemo() {
+                // Demo kontakti
+                this.contacts = [
+                    { id: 'u2', name: 'Ana', email: 'ana@example.com', avatar: 'A', status: '✓ Online', approved: true },
+                    { id: 'u3', name: 'Marko', email: 'marko@example.com', avatar: 'M', status: '✓ Online', approved: true },
+                    { id: 'u4', name: 'Petra', email: 'petra@example.com', avatar: 'P', status: '⊙ Nema aktivnosti', approved: false }
+                ];
+
+                // Demo poruke
+                this.messages['u2'] = [
+                    { sender: 'u2', text: 'Bok! Kako si?', time: '10:30' },
+                    { sender: 'user1', text: 'Dobar dan! Super sam!', time: '10:31' },
+                    { sender: 'u2', text: 'Puno posla ovdje. 😄', time: '10:32' }
+                ];
+
+                this.messages['u3'] = [
+                    { sender: 'user1', text: 'Javi se kad budeš dostupan', time: '09:15' },
+                    { sender: 'u3', text: 'Sad sam slobodan!', time: '14:20' }
+                ];
+
+                // Demo zahtjevi
+                this.requests = [
+                    { id: 'u5', name: 'Saša', email: 'sasa.gojkovic@skole.hr', avatar: 'J' }
+                ];
+
+                document.getElementById('userName').textContent = this.currentUser.name;
+                document.getElementById('userAvatar').textContent = this.currentUser.avatar;
+            }
+
+            setupEventListeners() {
+                const inputEl = document.querySelector('.message-input');
+                if (inputEl) {
+                    inputEl.addEventListener('keypress', (e) => {
+                        if (e.key === 'Enter' && !e.shiftKey) {
+                            e.preventDefault();
+                            this.sendMessage();
+                        }
+                    });
+                }
+            }
+
+            updateUI() {
+                this.renderContacts();
+                this.updateRequestsBadge();
+            }
+
+            renderContacts() {
+                const contactsList = document.getElementById('contactsList');
+                contactsList.innerHTML = '';
+
+                this.contacts.forEach(contact => {
+                    const div = document.createElement('div');
+                    div.className = `contact-item ${this.currentContact?.id === contact.id ? 'active' : ''}`;
+                    
+                    const statusIcon = contact.approved ? '✓' : '⏳';
+                    const statusText = contact.approved ? contact.status : 'Zahtjev na čekanju...';
+
+                    div.innerHTML = `
+                        <div class="contact-avatar">${contact.avatar}</div>
+                        <div class="contact-info">
+                            <div class="contact-name">${contact.name}</div>
+                            <div class="contact-status">${statusText}</div>
+                        </div>
+                        ${!contact.approved ? '<div class="request-badge">!</div>' : ''}
+                    `;
+
+                    div.onclick = () => {
+                        if (contact.approved) {
+                            this.selectContact(contact);
+                        } else {
+                            this.showNotification('Zahtjev tek čeka odgovor!');
+                        }
+                    };
+
+                    contactsList.appendChild(div);
+                });
+            }
+
+            selectContact(contact) {
+                this.currentContact = contact;
+                this.renderContacts();
+                this.renderChat();
+            }
+
+            renderChat() {
+                const chatArea = document.getElementById('chatArea');
+                
+                if (!this.currentContact) {
+                    chatArea.innerHTML = `
+                        <div class="empty-state">
+                            <div class="empty-state-icon">💬</div>
+                            <div class="empty-state-text">Odaberite kontakt</div>
+                        </div>
+                    `;
+                    return;
+                }
+
+                chatArea.innerHTML = `
+                    <div class="chat-header">
+                        <div class="chat-header-info">
+                            <div class="chat-header-avatar">${this.currentContact.avatar}</div>
+                            <div class="chat-header-text">
+                                <h2>${this.currentContact.name}</h2>
+                                <p>${this.currentContact.status}</p>
+                            </div>
+                        </div>
+                        <div class="chat-header-actions">
+                            <button class="header-btn" title="Poziv">📞</button>
+                            <button class="header-btn" title="Video">📹</button>
+                            <button class="header-btn" title="Opcije">⋮</button>
+                        </div>
+                    </div>
+
+                    <div class="messages-container" id="messagesContainer">
+                        ${this.renderMessages()}
+                    </div>
+
+                    <div class="input-area">
+                        <div class="input-wrapper">
+                            <textarea class="message-input" placeholder="Napišite poruku..." rows="1"></textarea>
+                            <button class="send-btn" onclick="app.sendMessage()">➤</button>
+                        </div>
+                    </div>
+                `;
+
+                // Auto scroll
+                setTimeout(() => {
+                    document.getElementById('messagesContainer').scrollTop = 
+                        document.getElementById('messagesContainer').scrollHeight;
+                }, 0);
+
+                this.setupEventListeners();
+            }
+
+            renderMessages() {
+                const contactId = this.currentContact?.id;
+                const msgs = this.messages[contactId] || [];
+
+                return msgs.map(msg => {
+                    const isOwn = msg.sender === 'user1';
+                    return `
+                        <div class="message ${isOwn ? 'own' : 'other'}">
+                            ${!isOwn ? `<div class="message-avatar">${this.currentContact.avatar}</div>` : ''}
+                            <div class="message-content">
+                                <div class="message-text">${this.escapeHtml(msg.text)}</div>
+                                <div class="message-time">${msg.time}</div>
+                            </div>
+                            ${isOwn ? `<div class="message-avatar">${this.currentUser.avatar}</div>` : ''}
+                        </div>
+                    `;
+                }).join('');
+            }
+
+            sendMessage() {
+                const input = document.querySelector('.message-input');
+                const text = input.value.trim();
+
+                if (!text || !this.currentContact) return;
+
+                const time = new Date().toLocaleTimeString('hr-HR', { hour: '2-digit', minute: '2-digit' });
+                
+                if (!this.messages[this.currentContact.id]) {
+                    this.messages[this.currentContact.id] = [];
+                }
+
+                this.messages[this.currentContact.id].push({
+                    sender: 'user1',
+                    text: text,
+                    time: time
+                });
+
+                input.value = '';
+                input.style.height = 'auto';
+                this.renderChat();
+
+                // Simulacija odgovora
+                setTimeout(() => {
+                    this.messages[this.currentContact.id].push({
+                        sender: this.currentContact.id,
+                        text: '👍 Razumijem! ' + ['Odličan komentar!', 'Suglasan sam!', 'Čini se super!'][Math.floor(Math.random() * 3)],
+                        time: new Date().toLocaleTimeString('hr-HR', { hour: '2-digit', minute: '2-digit' })
+                    });
+                    if (this.currentContact) this.renderChat();
+                }, 1000 + Math.random() * 2000);
+            }
+
+            updateRequestsBadge() {
+                document.getElementById('requestsCount').textContent = this.requests.length;
+            }
+
+            showRequest() {
+                if (this.requests.length === 0) {
+                    this.showNotification('Nema novih zahtjeva!');
+                    return;
+                }
+
+                const req = this.requests[0];
+                document.getElementById('modalUserName').textContent = req.name;
+                document.getElementById('modalUserEmail').textContent = req.email;
+                document.getElementById('modalAvatar').textContent = req.avatar;
+                document.getElementById('requestModal').classList.add('active');
+            }
+
+            acceptRequest() {
+                if (this.requests.length === 0) return;
+
+                const req = this.requests.shift();
+                this.contacts.push({
+                    id: req.id,
+                    name: req.name,
+                    email: req.email,
+                    avatar: req.avatar,
+                    status: '✓ Online',
+                    approved: true
+                });
+
+                this.messages[req.id] = [];
+                this.updateUI();
+                document.getElementById('requestModal').classList.remove('active');
+                this.showNotification(`✓ ${req.name} je sada vaš kontakt!`);
+            }
+
+            rejectRequest() {
+                if (this.requests.length === 0) return;
+
+                const req = this.requests.shift();
+                this.updateUI();
+                document.getElementById('requestModal').classList.remove('active');
+                this.showNotification(`Zahtjev od ${req.name} je odbijenut.`);
+            }
+
+            showNotification(msg) {
+                const notif = document.getElementById('notification');
+                notif.textContent = msg;
+                notif.classList.add('show');
+                setTimeout(() => notif.classList.remove('show'), 3000);
+            }
+
+            escapeHtml(text) {
+                const div = document.createElement('div');
+                div.textContent = text;
+                return div.innerHTML;
+            }
+        }
+
+        // INICIJALIZACIJA
+        let app = new SecureChat();
+
+        // GLOBALNE FUNKCIJE
+        function showAddContact() {
+            const name = prompt('Unesite ime kontakta:');
+            if (!name) return;
+
+            const email = prompt('Unesite email kontakta:');
+            if (!email) return;
+
+            const avatar = name.charAt(0).toUpperCase();
+            app.requests.push({
+                id: 'u' + Date.now(),
+                name: name,
+                email: email,
+                avatar: avatar
+            });
+
+            app.updateUI();
+            app.showNotification(`✉️ Zahtjev je poslan ${name}-u`);
+        }
+
+        function acceptRequest() {
+            app.acceptRequest();
+        }
+
+        function rejectRequest() {
+            app.rejectRequest();
+        }
+
+        function showAddContact() {
+            const firstName = prompt('Unesite ime osobe:');
+            if (!firstName) return;
+
+            const name = prompt('Unesite prezime osobe (opciono):', '');
+            const fullName = (name ? firstName + ' ' + name : firstName).trim();
+
+            const email = prompt('Unesite email adresu:');
+            if (!email) return;
+
+            const avatar = fullName.charAt(0).toUpperCase();
+            app.requests.push({
+                id: 'u' + Date.now(),
+                name: fullName,
+                email: email,
+                avatar: avatar
+            });
+
+            app.updateUI();
+            app.showNotification(`✉️ Zahtjev za dopisivanje poslan ${fullName}-u`);
+        }
+
+        // Simulacija primanja zahtjeva svakih 15 sekundi
+        setInterval(() => {
+            if (Math.random() > 0.7) {
+                const fakeRequests = [
+                    { name: 'Filip', avatar: 'F' },
+                    { name: 'Lucija', avatar: 'L' },
+                    { name: 'Dominik', avatar: 'D' }
+                ];
+
+                const fake = fakeRequests[Math.floor(Math.random() * fakeRequests.length)];
+                app.requests.push({
+                    id: 'fake' + Date.now(),
+                    name: fake.name,
+                    email: fake.name.toLowerCase() + '@example.com',
+                    avatar: fake.avatar
+                });
+
+                app.updateUI();
+                app.showNotification(`📨 Novi zahtjev od ${fake.name}!`);
+            }
+        }, 15000);
+
+        // Klik na zahtjeve
+        document.addEventListener('click', (e) => {
+            if (e.target.closest('#requestsCount') || e.target.closest('[data-requests]')) {
+                app.showRequest();
+            }
+        });
+
+        // Prikazi prvi zahtjev nakon 3 sekunde
+        setTimeout(() => {
+            if (app.requests.length > 0) {
+                app.showRequest();
+            }
+        }, 3000);
+    </script>
+</body>
+</html>
